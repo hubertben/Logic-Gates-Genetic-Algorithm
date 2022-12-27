@@ -1,11 +1,4 @@
 
-# Truth Table for AND Gate
-# self.truthTable = {
-#     "00": 0,
-#     "01": 0,
-#     "10": 0,
-#     "11": 1
-# }
 
 def require(exp, label = ""):
     if not exp:
@@ -208,8 +201,6 @@ class FULLADDER(LogicGate):
         }
 
 
-
-
 class Pin:
 
     def __init__(self, ID, label = ""):
@@ -237,8 +228,6 @@ class Pin:
 
         self.outputConnections[myOutIndex].append(connectee)
         connectee.inputConnections[connecteeInIndex].append(self)
-
-
 
 
 def execute(inputPins, outputPins, verbose=False): 
@@ -289,15 +278,12 @@ def execute(inputPins, outputPins, verbose=False):
         queue = []
         i = 0
 
-        
         if(verbose):print("GATES:")
         for g in gates:
             if(verbose):print(g.displayGate())
             queue.append(g)
 
-
         outputs = []
-
 
         while len(queue) != 0:
 
@@ -318,15 +304,12 @@ def execute(inputPins, outputPins, verbose=False):
                 if(verbose):print("[SKIPPING] QUEUE:", item.label + " " + str(item.ID))
                 # move to end of queue
                 queue.append(queue.pop(i))
-            
-
-
+        
         return outputs
 
 
     def returnInput(i, l):
         return str(decToBin(i, l))
-
 
     outputs = {}
 
@@ -358,10 +341,6 @@ def execute(inputPins, outputPins, verbose=False):
     return outputs
                         
                         
-
-        
-
-# partitions are {"ks": [3, 4], "ks": [7, 8], "vs": [3, 4]"}
 
 def displayTruthTable(outputs):
     print("Truth Table:")
