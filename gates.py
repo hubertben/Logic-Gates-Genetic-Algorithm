@@ -1,4 +1,5 @@
-
+import ast
+import copy
 
 def require(exp, label = ""):
     if not exp:
@@ -342,13 +343,56 @@ def execute(inputPins, outputPins, verbose=False):
                         
                         
 
-def displayTruthTable(outputs):
+def displayTruthTable(outputs, group = []):
+
+
+
     print("Truth Table:")
 
     def binStringToDec(string):
+
+        # check if string contains only 0s and 1s
+        if not all(c in "01" for c in string):
+            return string
         return int(string, 2)
 
-    for i in outputs:
-        print(i, ":", outputs[i])
+    if len(group) == 0:
+        for i in outputs:
+            print(i, ":", outputs[i])
 
-    pass
+    else:
+        
+        for k, v in outputs.items():
+
+            groupCopy = copy.deepcopy(group)
+
+            k = ast.literal_eval(str(k))
+            v = ast.literal_eval(str(v))
+
+            masterDict = {}
+
+            for i in k:
+                for key, value in i.items():
+                    masterDict[key] = value
+
+            for i in v:
+                for key, value in i.items():
+                    masterDict[key] = value
+
+            for i in range(len(groupCopy)):
+                for j in range(len(groupCopy[i])):
+                    groupCopy[i][j] = masterDict[groupCopy[i][j]]
+
+            for i in range(len(groupCopy)):
+                groupCopy[i] = str(binStringToDec("".join(groupCopy[i])))
+
+            print(groupCopy)
+
+            
+
+                    
+
+
+
+        
+

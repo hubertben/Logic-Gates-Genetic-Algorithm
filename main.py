@@ -104,7 +104,7 @@ displayTruthTable(outputs)
 
 # 4-bit Adder from Full Adder
 
-'''
+
 P1 = Pin(1, label = "A8")
 P2 = Pin(2, label = "A4")
 P3 = Pin(3, label = "A2")
@@ -125,12 +125,10 @@ P13 = Pin(13, label = "S1")
 P14 = Pin(14, label = "C2")
 
 
-
 FA1 = FULLADDER(1)
 FA2 = FULLADDER(2)
 FA3 = FULLADDER(3)
 FA4 = FULLADDER(4)
-
 
 
 P1.addConnection(0, FA4, 0)
@@ -163,5 +161,5 @@ INPUTS = [P1, P2, P3, P4, P5, P6, P7, P8, P9]
 OUTPUTS = [P10, P11, P12, P13, P14]
 
 outputs = execute(INPUTS, OUTPUTS, False)
-displayTruthTable(outputs)
-'''
+displayTruthTable(outputs, group = [["A8", "A4", "A2", "A1"], ["B8", "B4", "B2", "B1"], ["C1"], ["C2", "S8", "S4", "S2", "S1"]])
+
