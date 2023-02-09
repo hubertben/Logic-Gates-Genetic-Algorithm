@@ -58,6 +58,9 @@ class LogicGate:
         s = "Gate: " + self.label + " ID: " + str(self.ID)
         return s
 
+    def __repr__(self):
+        return self.__str__()
+
     def displayGate(self):
         s = "~~~~~~~~~~~~~~~~~~\n"
         s += "Gate: " + self.label + " ID: " + str(self.ID) + "\n"
@@ -216,6 +219,9 @@ class Pin:
     def __str__(self):
         return str(self.label) + " [" + str(self.ID) + "]"
 
+    def __repr__(self):
+        return str(self.label) + " [" + str(self.ID) + "]"
+
     def addConnection(self, myOutIndex, connectee, connecteeInIndex):
 
         myOutIndex = str(myOutIndex)
@@ -231,7 +237,7 @@ class Pin:
         connectee.inputConnections[connecteeInIndex].append(self)
 
 
-def execute(inputPins, outputPins, verbose=False): 
+def execute(inputPins, outputPins, verbose=False, maxItterations = 100): 
 
     gates = []
 
@@ -274,7 +280,7 @@ def execute(inputPins, outputPins, verbose=False):
     findGates(passed)
     if(verbose): print("GATES:", str(gates))
 
-    def passThroughGates():
+    def passThroughGates(maxIterations = 1000):
     
         queue = []
         i = 0
@@ -287,6 +293,10 @@ def execute(inputPins, outputPins, verbose=False):
         outputs = []
 
         while len(queue) != 0:
+
+            if i >= maxIterations:
+                print("MAX ITERATIONS REACHED")
+                return None
 
             item = queue[0]
 
@@ -331,7 +341,7 @@ def execute(inputPins, outputPins, verbose=False):
                 for o in v:
                     o.setInput(j, j.value)
        
-        p = passThroughGates()
+        p = passThroughGates(maxItterations)
         inputs = []
 
         for j in inputPins:

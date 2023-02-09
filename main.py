@@ -12,7 +12,7 @@ logic gates and the network is tested.
 '''
 
 
-# XOR Gate from AND and NOT gates
+# NOR Gate from AND and NOT gates
 
 '''
 P1 = Pin(1, label = "Input Pin 1")
@@ -176,3 +176,50 @@ outputs = execute(INPUTS, OUTPUTS, False)
 displayTruthTable(outputs, group = [["A8", "A4", "A2", "A1"], ["B8", "B4", "B2", "B1"], ["C1"], ["C2", "S8", "S4", "S2", "S1"]])
 
 '''
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+'''
+
+Solver Testing
+
+'''
+
+truthTable = {
+                "00": "0",
+                "01": "1",
+                "10": "1",
+                "11": "0"
+            }
+
+
+AND_ = AND(1)
+NOT_ = NOT(1)
+
+gates = [AND_, NOT_]
+
+S = Solve(truthTable, gates, 1)
+
+print(S.solve(1))
