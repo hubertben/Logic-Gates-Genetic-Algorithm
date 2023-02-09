@@ -62,8 +62,11 @@ INPUTS = [P1, P2]
 OUTPUTS = [P3, P4]
 
 output = execute(INPUTS, OUTPUTS, False)
-displayTruthTable(output, group=[["A"], ["B"], ["C", "S"]])
+displayTruthTable(output)
+
+print("\n\n")
 '''
+
 
 '''
 
@@ -208,10 +211,10 @@ Solver Testing
 '''
 
 truthTable = {
-                "00": "0",
-                "01": "1",
-                "10": "1",
-                "11": "0"
+                "00": "00",
+                "01": "10",
+                "10": "10",
+                "11": "00"
             }
 
 
@@ -220,6 +223,4 @@ NOT_ = NOT(1)
 
 gates = [AND_, NOT_]
 
-S = Solve(truthTable, gates, 1)
-
-print(S.solve(1))
+solve(truthTable, gates, 5)

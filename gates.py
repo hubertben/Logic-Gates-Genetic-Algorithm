@@ -1,5 +1,6 @@
 import ast
 import copy
+import ast
 
 def require(exp, label = ""):
     if not exp:
@@ -102,6 +103,9 @@ class LogicGate:
                     j.setInput(self, self.outputs[i])
 
         return outputs
+
+    def copyGate(self):
+        return copy.deepcopy(self)
 
 
 class AND(LogicGate):
@@ -217,10 +221,10 @@ class Pin:
         self.label = label
 
     def __str__(self):
-        return str(self.label) + " [" + str(self.ID) + "]"
+        return str(self.label)
 
     def __repr__(self):
-        return str(self.label) + " [" + str(self.ID) + "]"
+        return str(self.label)
 
     def addConnection(self, myOutIndex, connectee, connecteeInIndex):
 
@@ -292,11 +296,14 @@ def execute(inputPins, outputPins, verbose=False, maxItterations = 100):
 
         outputs = []
 
-        while len(queue) != 0:
+        iter_ = 0
+        while len(queue) > 0:
 
-            if i >= maxIterations:
-                print("MAX ITERATIONS REACHED")
+            if iter_ >= maxIterations:
+                if(verbose):print("MAX ITERATIONS REACHED")
                 return None
+
+            iter_ += 1
 
             item = queue[0]
 
@@ -351,7 +358,35 @@ def execute(inputPins, outputPins, verbose=False, maxItterations = 100):
 
     return outputs
                         
-                        
+
+
+def compareTruthTables(tt1, tt2):
+    score = 0
+
+    for k, v in tt1.items():
+        if k in tt2:
+            if v == tt2[k]:
+                score += 1
+
+    return score / len(tt1)
+         
+
+def compactTruthTable(tt):
+    newTable = {}
+    for k, v in tt.items():
+        key_ = ""
+        for i in ast.literal_eval(k):
+            for key, value in i.items():
+                key_ += value
+        
+        val_ = ""
+        for i in v:
+            for key, value in i.items():
+                val_ += value
+
+        newTable[key_] = val_
+        
+    return newTable
 
 def displayTruthTable(outputs, group = []):
 
