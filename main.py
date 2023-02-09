@@ -1,13 +1,23 @@
 
 from network import *
 from gates import *
-
-# XOR Gate from NAND gates
+from solve import *
 
 '''
-P1 = Pin(1, label = "Input Pin")
-P2 = Pin(2, label = "Input Pin")
-P3 = Pin(3, label = "Output Pin")
+
+Below are a sample of test cases
+in which the software that manges the
+logic gates and the network is tested.
+
+'''
+
+
+# XOR Gate from AND and NOT gates
+
+'''
+P1 = Pin(1, label = "Input Pin 1")
+P2 = Pin(2, label = "Input Pin 2")
+P3 = Pin(3, label = "Output Pin 1")
 
 A1 = AND(1)
 N1 = NOT(1)
@@ -22,9 +32,10 @@ N1.addConnection(0, P3, 0)
 INPUTS = [P1, P2]
 OUTPUTS = [P3]
 
-print(execute(INPUTS, OUTPUTS, True))
-'''
+execution = execute(INPUTS, OUTPUTS, False)
 
+displayTruthTable(execution)
+'''
 
 
 # Half Adder from XOR and AND gates
@@ -51,14 +62,14 @@ INPUTS = [P1, P2]
 OUTPUTS = [P3, P4]
 
 output = execute(INPUTS, OUTPUTS, False)
-displayTruthTable(output)
+displayTruthTable(output, group=[["A"], ["B"], ["C", "S"]])
 '''
 
-
+'''
 
 # Full Adder from AND, XOR, and OR gates
 
-'''
+
 P1 = Pin(1, label = "A")
 P2 = Pin(2, label = "B")
 P3 = Pin(3, label = "C(in)")
@@ -96,11 +107,12 @@ O1.addConnection(0, P5, 0)
 INPUTS = [P1, P2, P3]
 OUTPUTS = [P4, P5]
 
-outputs = execute(INPUTS, OUTPUTS, True)
-displayTruthTable(outputs)
+outputs = execute(INPUTS, OUTPUTS, False)
+displayTruthTable(outputs, group=[["A"], ["B"], ["C(in)"], ["C(out)", "S"]])
 '''
 
 
+'''
 
 # 4-bit Adder from Full Adder
 
@@ -163,3 +175,4 @@ OUTPUTS = [P10, P11, P12, P13, P14]
 outputs = execute(INPUTS, OUTPUTS, False)
 displayTruthTable(outputs, group = [["A8", "A4", "A2", "A1"], ["B8", "B4", "B2", "B1"], ["C1"], ["C2", "S8", "S4", "S2", "S1"]])
 
+'''
