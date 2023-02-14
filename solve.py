@@ -4,225 +4,6 @@ from gates import *
 import random
 
 
-# class Solvers:
-
-#     def __init__(self, iD, truthtable, allowedGates, inputCount, outputCount):
-#         self.truthtable = truthtable
-#         self.allowedGates = allowedGates
-#         self.inputCount = inputCount
-#         self.outputCount = outputCount
-#         self.iD = iD
-
-#         self.fitness = 0
-#         self.circuit = None
-
-#     def __repr__(self):
-#         print("Solver " + str(self.iD) + " Fitness: " + str(self.fitness))
-#         return ""
-        
-
-#     def arange(self, inputConnections, outputConnections, firstPass = False):
-
-#         if firstPass != False:   
-
-#             totalNumberOfConnections = len(inputConnections) * len(outputConnections)
-#             numberOfConnections = random.randint(int(totalNumberOfConnections * .3), int(totalNumberOfConnections * .8))
-        
-#             connections = []
-
-#             rules = [
-#                 # ["Input Pin", "Output Pin"],
-#                 ["Input Pin", "Input Pin (Gate)"],
-#                 ["Output Pin (Gate)", "Output Pin"],
-#                 ["Output Pin (Gate)", "Input Pin (Gate)"]
-#             ]
-
-#             def generatePinPair():
-
-#                 input_ = None
-#                 output_ = None
-
-#                 rule = random.choice(rules)
-
-#                 if rule[0] == "Input Pin":
-#                     breaker = 0
-#                     while True:
-#                         breaker += 1
-#                         if breaker > 100:
-#                             print("Failed to generate a valid connection")
-#                             return 0, 0
-#                         input_ = random.choice(inputConnections)
-#                         if type(input_[0]) == Pin:
-#                             break
-
-#                 elif rule[0] == "Output Pin (Gate)":
-#                     breaker = 0
-#                     while True:
-#                         breaker += 1
-#                         if breaker > 100:
-#                             print("Failed to generate a valid connection")
-#                             return 0, 0
-#                         input_ = random.choice(outputConnections)
-#                         if type(input_[0]) != Pin:
-#                             break
-
-                
-
-#                 if rule[1] == "Output Pin":
-#                     breaker = 0
-#                     while True:
-#                         breaker += 1
-#                         if breaker > 100:
-#                             print("Failed to generate a valid connection")
-#                             return 0, 0
-#                         output_ = random.choice(outputConnections)
-#                         if type(output_[0]) == Pin:
-#                             break
-
-#                 elif rule[1] == "Input Pin (Gate)":
-#                     breaker = 0
-#                     while True:
-#                         breaker += 1
-#                         if breaker > 100:
-#                             print("Failed to generate a valid connection")
-#                             return 0, 0
-#                         output_ = random.choice(inputConnections)
-#                         if type(output_[0]) != Pin:
-#                             break   
-
-#                 return input_, output_
-
-
-#             for i in range(numberOfConnections):
-                
-#                 c = 0
-#                 input_ = None
-#                 output_ = None
-
-#                 while True:
-#                     c += 1
-#                     if c > 100:
-#                         # print("Failed to generate a valid connection")
-#                         break
-
-#                     input_, output_ = generatePinPair()
-#                     if input_[0] != output_[0] and [input_, output_] not in connections and [output_, input_] not in connections:
-#                         break
-
-
-#                 input_[0].addConnection(input_[1], output_[0], output_[1])
-#                 connections.append([input_, output_])
-
-#             print("Connections:")
-#             for i in connections:
-#                 print(i[0][0], i[0][1], " -> ", i[1][0], i[1][1])
-            
-#             return connections
-
-#         else:
-#             # Reconnect the list of connections made in the first pass based on the fitness of the circuit
-#                 # It should be as the fitness increases, the less reconnections are made
-
-#             # Return the list of connections made
-#             pass
-
-#         return 
-
-#     def determineFitness(self, inputPins, outputPins, basetable):
-#         pass
-
-#     def mutate(self, mutationRate = .01):
-#         pass
-
-
-
-
-# class Solve:
-
-#     def __init__(self, truthtable, allowedGates, solverCount = 100):
-#         self.truthtable = truthtable
-#         self.allowedGates = allowedGates
-
-#         self.inputCount = len(list(self.truthtable.keys())[0])
-#         self.outputCount = len(list(self.truthtable.values())[0])
-
-#         self.group = [Solvers(i, truthtable, allowedGates, self.inputCount, self.outputCount) for i in range(solverCount)]
-
-#     def singlePass(self, firstPass = False, allowedSolutionsAsPercentage = .1):
-        
-#         inputPins = [Pin(i, label = "Input Pin " + str(i)) for i in range(self.inputCount)]
-#         outputPins = [Pin(i, label = "Output Pin " + str(i)) for i in range(self.outputCount)]
-
-#         inputs_ = [[p, 0] for p in inputPins]
-#         outputs_ = [[p, 0] for p in outputPins]
-
-#         gateInputs = []
-#         gateOutputs = []
-#         for gate in self.allowedGates:
-#             for i in range(gate.inputCount):
-#                 gateInputs.append([gate, i])
-
-#             for i in range(gate.outputCount):
-#                 gateOutputs.append([gate, i])
-
-#         inputs_.extend(gateInputs)
-#         outputs_.extend(gateOutputs)
-
-#         inputConnections = inputs_
-#         outputConnections = outputs_
-        
-#         for i in self.group:
-
-#             truthTable = {}
-
-#             connections = i.arange(inputConnections, outputConnections, firstPass)
-#             execution = execute(inputPins, outputPins)
-
-#             validTable = True
-#             for k, v in execution.items():
-#                 if(v == [] or v == None):
-#                     validTable = False
-#                     break
-
-#                 truthTable[str(k)] = v[:len(outputPins)]
-
-#             print("EXECUTION")
-#             if validTable:
-#                 displayTruthTable(truthTable)
-#             else:
-#                 print("Invalid Table")
-
-
-#         if validTable:
-#             truthTable = compactTruthTable(truthTable)
-#             displayTruthTable(truthTable)
-#             print(compareTruthTables(self.truthtable, truthTable))
-        
-
-#         self.group.sort(key=lambda x: x.fitness, reverse=True)
-
-#         p = int(len(self.group) * allowedSolutionsAsPercentage)
-#         return self.group[:p]
-
-#     def mutate(self, desiredGroupSize):
-        
-#         while len(self.group) < desiredGroupSize:
-#             break
-
-#     def solve(self, evolv = 100):
-
-#         for i in range(evolv):
-#             self.group = self.singlePass(firstPass = .5, allowedSolutionsAsPercentage = .5)
-
-#         return self.group
-
-        
-
-
-
-
-
-
 
 rules = [
     ["Input Pin", "Input Pin (Gate)"],
@@ -314,36 +95,69 @@ class Package:
     def makeModify(self):
         
         if self.firstPass:
+
+            '''
             
-            self.firstPass = False
+            Connections that need to be made:
 
-            for c in self.fullConnections:
-                rule = c[0]
+                1)  All input pins need to be connected to at least one gate input, 
+                    but 2 different inputs cannot be connected to the same gate input
 
-                if(rule == 0):
-                    if(random.randint(0, 1) == 0):
-                        c[2] = True
+                2)  All output pins need to be connected to at least one gate output,
+                    but 2 different gate outputs cannot be connected to the same output pin
 
-                if(rule == 2):
-                    if(random.randint(0, 1) == 0):
-                        c[2] = True
+                3)  No gate can have any input or output not connected to anything 
+                    (all inputs and outputs must be connected to something)
+            
+            '''
 
-            outputs = {}
-            for c in self.fullConnections:
-                if(c[0] == 1):
-                    if(c[1][1][0] in outputs):
-                        outputs[c[1][1][0]].append(c)
+            def gatePinPair(gate, pin):
+                return "__".join([str(gate), str(pin)])
+
+
+            def reverseGatePinPair(gatePinPair):
+                gate, pin = gatePinPair.split("__")
+                for g in self.gates:
+                    if(str(g) == gate):
+                        return g, int(pin)
+                    
+
+            def findConnection(connectionInput, connectionInputPin, connectionOutput, connectionOutputPin):
+                for c in self.fullConnections:
+                    if connectionInput == c[1][0][0] and connectionInputPin == c[1][0][1] and connectionOutput == c[1][1][0] and connectionOutputPin == c[1][1][1]:
+                        return c
+                
+
+            sampleAmmount = {}
+            inputsNotChosen = [gatePinPair(s[0], s[1]) for s in self.gateInputs]
+
+            for i in self.inputPins:
+                r = random.randint(1, len(self.gateInputs) - 1)
+                sample = random.sample(self.gateInputs, r)
+
+                for s in sample:
+                    s_ = gatePinPair(s[0], s[1])
+                    if s_ in sampleAmmount:
+                        sampleAmmount[s_].append(i)
                     else:
-                        outputs[c[1][1][0]] = [c]
+                        sampleAmmount[s_] = [i]
 
-            for o in outputs:
-                connections = outputs[o]
-                chosenConnection = random.choice(connections)
-                for c in connections:
-                    if(c == chosenConnection):
-                        c[2] = True
-                    else:
-                        c[2] = False
+                
+            for k, v in sampleAmmount.items():
+                gate, pin = reverseGatePinPair(k)
+                
+                r = None
+                if len(v) == 1:           
+                    r = v[0]
+                else:
+                    r = random.choice(v)
+                
+                connection = findConnection(r, 0, gate, pin)
+                connection[2] = True
+                inputsNotChosen.remove(k)
+
+            inputsNotChosen = [reverseGatePinPair(s) for s in inputsNotChosen]
+            print(inputsNotChosen)
 
         else:
             pass
@@ -359,6 +173,7 @@ class Package:
         execution = execute(self.inputPins, self.outputPins)
         if(verbose):
             displayTruthTable(execution)
+            displayTruthTable(compactTruthTable(execution))
         return execution
         
 
@@ -371,8 +186,6 @@ class Package:
 
 
     def arange(self):
-
-        
 
         connections = self.initialize()
 

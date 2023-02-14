@@ -280,6 +280,8 @@ def execute(inputPins, outputPins, verbose=False, maxItterations = 100):
                 if o not in passed:
                     passed.append(o)
 
+    if(verbose): print("PASSED:", passed)
+
 
     findGates(passed)
     if(verbose): print("GATES:", str(gates))
