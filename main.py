@@ -211,7 +211,7 @@ Solver Testing
 '''
 
 truthTable = {
-                "00": "00",
+                "00": "10",
                 "01": "10",
                 "10": "10",
                 "11": "00"
@@ -223,4 +223,4 @@ NOT_ = NOT(1)
 
 gates = [AND_, NOT_]
 
-solve(truthTable, gates, 5)
+solve(truthTable, gates)

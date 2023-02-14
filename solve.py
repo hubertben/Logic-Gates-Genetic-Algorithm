@@ -246,15 +246,24 @@ def replicateGates(gates):
 
 class Package:
 
-    def __init__(self, iD, truthTable, gates, inputPins, outputPins):
+    def __init__(self, iD, truthTable, gates, numInputPins, numOutputPins):
+
         self.iD = iD
         self.truthTable = truthTable
         self.gates = gates
-        self.inputPins = inputPins
-        self.outputPins = outputPins
+        self.numInputPins = numInputPins
+        self.numOutputPins = numOutputPins
+
+        self.inputPins, self.outputPins = None, None
 
         self.gateInputs = []
         self.gateOutputs = []
+        self.fullConnections = []
+
+
+
+        self.firstPass = True
+        
 
     def retrieveGateIO(self, gate):
         gateInputs = []
@@ -265,20 +274,30 @@ class Package:
             gateOutputs.append([gate, i])
         return gateInputs, gateOutputs
 
+    def printConnections(self):
+        print("\nConnections:")
+        for c in self.fullConnections:
+            print(c)
+        print("")
 
+    def initialize(self):
+        
+        self.inputPins, self.outputPins = newPinSet(self.numInputPins, self.numOutputPins)
 
-    def formAllConnections(self):
-        connections = []
+        for g in self.gates:
+            gateInputs_, gateOutputs_ = self.retrieveGateIO(g)
+            self.gateInputs.extend(gateInputs_)
+            self.gateOutputs.extend(gateOutputs_)
 
         # connect all input pins to all gate inputs
         for i in self.inputPins:
             for j in self.gateInputs:
-                connections.append([[i, 0], j])
+                self.fullConnections.append([0, ([i, 0], j), False])
 
         # connect all gate outputs to all output pins
         for j in self.outputPins:
-            i = random.choice(self.gateOutputs)
-            connections.append([i, [j, 0]])
+            for i in self.gateOutputs:
+                self.fullConnections.append([1, (i, [j, 0]), False])
 
         # connect all gate outputs to all gate inputs
         for i in self.gateOutputs:
@@ -287,32 +306,75 @@ class Package:
                 if(i[0] == j[0]):
                     continue
 
-                connections.append([i, j])
+                self.fullConnections.append([2, (i, j), False])
 
-        return connections
+        
 
 
-    def pruneOutput(self, truthTable):
+    def makeModify(self):
+        
+        if self.firstPass:
+            
+            self.firstPass = False
 
-        for k, v in truthTable.items():
-            if(v == [] or v == None):
-                return "Invalid Table"
+            for c in self.fullConnections:
+                rule = c[0]
 
-            print(k, v)
+                if(rule == 0):
+                    if(random.randint(0, 1) == 0):
+                        c[2] = True
 
-            truthTable[k] = v[:len(self.outputPins)]
+                if(rule == 2):
+                    if(random.randint(0, 1) == 0):
+                        c[2] = True
 
-        return truthTable
+            outputs = {}
+            for c in self.fullConnections:
+                if(c[0] == 1):
+                    if(c[1][1][0] in outputs):
+                        outputs[c[1][1][0]].append(c)
+                    else:
+                        outputs[c[1][1][0]] = [c]
+
+            for o in outputs:
+                connections = outputs[o]
+                chosenConnection = random.choice(connections)
+                for c in connections:
+                    if(c == chosenConnection):
+                        c[2] = True
+                    else:
+                        c[2] = False
+
+        else:
+            pass
+
+
+
+    def connect(self):
+        for c in self.fullConnections:
+            if(c[2]):
+                c[1][0][0].addConnection(c[1][0][1], c[1][1][0], c[1][1][1])
+
+    def execute(self, verbose = False):
+        execution = execute(self.inputPins, self.outputPins)
+        if(verbose):
+            displayTruthTable(execution)
+        return execution
+        
+
+    def evaluate(self, execution):
+        pass
+
+    def reproduce(self):
+        pass
+
 
 
     def arange(self):
 
-        for g in self.gates:
-            gateInputs_, gateOutputs_ = self.retrieveGateIO(g)
-            self.gateInputs.extend(gateInputs_)
-            self.gateOutputs.extend(gateOutputs_)
+        
 
-        connections = self.formAllConnections()
+        connections = self.initialize()
 
         for c in connections:
             print(c)
@@ -336,25 +398,32 @@ class Package:
 
 
 
-def solve(truthTable, gates, numberOfInstances, fitnessTolerance = .9):
+def solve(truthTable, gates, numberOfInstances = 1, fitnessTolerance = .9):
     
     numInputPins = len(list(truthTable.keys())[0])
     numOutputPins = len(list(truthTable.values())[0])
 
     print("Number of Input Pins: " + str(numInputPins), "Number of Output Pins: " + str(numOutputPins))
 
-
     group = []
     for i in range(numberOfInstances):
-        inputPins, outputPins = newPinSet(numInputPins, numOutputPins)
         newGates = replicateGates(gates)
-        group.append(Package(i, truthTable, newGates, inputPins, outputPins))
+        group.append(Package(i, truthTable, newGates, numInputPins, numOutputPins))
 
-    for i in group:
-        i.arange()
-        print()
+    for i in range(numberOfInstances):
+        group[i].initialize()
 
+        group[i].makeModify()
 
+        group[i].printConnections()
+
+        group[i].connect()
+
+        execution = group[i].execute(True)
+
+        group[i].evaluate(execution)
+
+        group[i].reproduce()
 
 
     return group

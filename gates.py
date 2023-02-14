@@ -56,7 +56,7 @@ class LogicGate:
                 self.inputs[i] = str(value)
 
     def __str__(self):
-        s = "Gate: " + self.label + " ID: " + str(self.ID)
+        s = "|Gate: " + self.label + " ID: " + str(self.ID) + "|"
         return s
 
     def __repr__(self):
