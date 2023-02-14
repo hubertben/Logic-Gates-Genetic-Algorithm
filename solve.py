@@ -7,7 +7,7 @@ seed = random.randint(0, 1000000)
 
 
 
-setSeed = 0
+setSeed = 0 # 865515
 
 
 
@@ -25,8 +25,8 @@ rules = [
 
 
 def newPinSet(inputPinCount, outputPinCount):
-    inputPins = [Pin(i, label = "Input Pin " + str(i)) for i in range(inputPinCount)]
-    outputPins = [Pin(i, label = "Output Pin " + str(i)) for i in range(outputPinCount)]
+    inputPins = [Pin(i, label = "In_" + str(i)) for i in range(inputPinCount)]
+    outputPins = [Pin(i, label = "Out_" + str(i)) for i in range(outputPinCount)]
     return inputPins, outputPins
 
 
@@ -67,8 +67,34 @@ class Package:
 
     def printConnections(self):
         print("\nConnections:")
+        maxLengths = [0, 0, 0, 0, 0, 0, 0, 0]
         for c in self.fullConnections:
-            print(c)
+            section1 = c[0]
+            section2 = c[1][0][0]
+            section3 = c[1][0][1]
+            section4 = c[1][1][0]
+            section5 = c[1][1][1]
+            section6 = c[2]
+
+            maxLengths[0] = max(maxLengths[0], len(str(section1)))
+            maxLengths[1] = max(maxLengths[1], len(str(section2)))
+            maxLengths[2] = max(maxLengths[2], len(str(section3)))
+            maxLengths[3] = max(maxLengths[3], len(str(section4)))
+            maxLengths[4] = max(maxLengths[4], len(str(section5)))
+            maxLengths[5] = max(maxLengths[5], len(str(section6)))
+
+
+        for c in self.fullConnections:
+            section1 = c[0]
+            section2 = c[1][0][0]
+            section3 = c[1][0][1]
+            section4 = c[1][1][0]
+            section5 = c[1][1][1]
+            section6 = c[2]
+
+            print(str(section1).ljust(maxLengths[0]) + " : [" + str(section2).ljust(maxLengths[1]) + "]: " + str(section3).ljust(maxLengths[2]) + " -> [" + str(section4).ljust(maxLengths[3]) + "]: " + str(section5).ljust(maxLengths[4]) + " --  " + str(section6).ljust(maxLengths[5]))
+
+            
         print("")
 
     def initialize(self):
@@ -126,7 +152,7 @@ class Package:
             inputsNotChosen = [gatePinPair(s[0], s[1]) for s in self.gateInputs]
 
             for i in self.inputPins:
-                r = random.randint(1, len(self.gateInputs) - 1)
+                r = random.randint(1, len(self.gateInputs) // 2)
                 sample = random.sample(self.gateInputs, r)
 
                 for s in sample:
@@ -294,17 +320,24 @@ def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
 
     displayTruthTable(compactTruthTable(execute(best[0].inputPins, best[0].outputPins)))
     easyReadConnections(best[0])
+
+    print()
+
+    for g in best[0].gates:
+        print("Gate:", g)
+        print("Inputs:", g.inputConnections)
+        print("Outputs:", g.outputConnections)
+        print()
     
     return group
 
 
 
 def easyReadConnections(package):
-
     connections = []
-
+    print()
     for c in package.fullConnections:
         if(c[2]):
-            print(c[1][0][0], "at pin", c[1][0][1], "to", c[1][1][0], "at pin", c[1][1][1])
+            print(c[1][0][0], ":", c[1][0][1], "\t->\t", c[1][1][0], ":", c[1][1][1])
 
     return connections
