@@ -35,6 +35,21 @@ class LogicGate:
         for i in range(outputCount):
             self.outputConnections[str(i)] = []
 
+        self.ancestors = []
+        self.descendants = []
+
+    def getAncestors(self):
+        if self.ancestors == []:
+            for i in range(self.inputCount):
+                for j in self.inputConnections[str(i)]:
+                    self.ancestors.append(j)
+                    a = j.getAncestors()
+                    if(a != []):
+                        self.ancestors.extend(a)    
+
+        return list(set(self.ancestors))
+
+
 
     def addConnection(self, myOutIndex, connectee, connecteeInIndex):
 
@@ -225,6 +240,9 @@ class Pin:
 
     def __repr__(self):
         return str(self.label)
+
+    def getAncestors(self):
+        return []
 
     def addConnection(self, myOutIndex, connectee, connecteeInIndex):
 
