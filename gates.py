@@ -38,16 +38,25 @@ class LogicGate:
         self.ancestors = []
         self.descendants = []
 
-    def getAncestors(self):
-        if self.ancestors == []:
-            for i in range(self.inputCount):
-                for j in self.inputConnections[str(i)]:
-                    self.ancestors.append(j)
-                    a = j.getAncestors()
-                    if(a != []):
-                        self.ancestors.extend(a)    
+    def getAncestors(self):        
+        for i in range(self.inputCount):
+            for j in self.inputConnections[str(i)]:
+                self.ancestors.append(j)
+                a = j.getAncestors()
+                if(a != []):
+                    self.ancestors.extend(a)    
 
         return list(set(self.ancestors))
+
+    def getDescendants(self):
+        for i in range(self.outputCount):
+            for j in self.outputConnections[str(i)]:
+                self.descendants.append(j)
+                a = j.getDescendants()
+                if(a != []):
+                    self.descendants.extend(a)
+
+        return list(set(self.descendants))
 
 
 
@@ -383,12 +392,19 @@ def execute(inputPins, outputPins, verbose=False, maxItterations = 100):
 def compareTruthTables(tt1, tt2):
     score = 0
 
-    for k, v in tt1.items():
-        if k in tt2:
-            if v == tt2[k]:
-                score += 1
+    if len(tt1) != len(tt2):
+        return -1
 
-    return score / len(tt1)
+    if len(tt1) == 0 or len(tt2) == 0:
+        return -1
+
+    for k, v in tt1.items():
+        l = len(tt1[k])
+        for i in range(l):
+            if tt1[k][i] == tt2[k][i]:
+                score += 1
+        
+    return score / (len(tt1) * len(tt1[k]))
          
 
 def compactTruthTable(tt):
@@ -400,17 +416,16 @@ def compactTruthTable(tt):
                 key_ += value
         
         val_ = ""
-        for i in v:
-            for key, value in i.items():
-                val_ += value
+        if type(v) is list:
+            for i in v:
+                for key, value in i.items():
+                    val_ += value
 
-        newTable[key_] = val_
+            newTable[key_] = val_
         
     return newTable
 
 def displayTruthTable(outputs, group = []):
-
-
 
     print("Truth Table:")
 

@@ -3,7 +3,19 @@
 from gates import *
 import random
 
+seed = random.randint(0, 1000000)
 
+
+
+setSeed = 0
+
+
+
+if setSeed != 0:
+    seed = setSeed
+
+random.seed(seed)
+print("\nSeed: " + str(seed) + "\n")
 
 rules = [
     ["Input Pin", "Input Pin (Gate)"],
@@ -40,8 +52,6 @@ class Package:
         self.gateInputs = []
         self.gateOutputs = []
         self.fullConnections = []
-
-
 
         self.firstPass = True
         
@@ -93,7 +103,7 @@ class Package:
 
 
     def makeModify(self):
-        
+
         if self.firstPass:
 
             '''
@@ -157,8 +167,63 @@ class Package:
                 inputsNotChosen.remove(k)
 
             inputsNotChosen = [reverseGatePinPair(s) for s in inputsNotChosen]
-            print(inputsNotChosen)
+            random.shuffle(inputsNotChosen)
 
+            # print("Inputs Not Chosen:", inputsNotChosen)
+
+            for i in inputsNotChosen:
+                # print(i[0], "at pin", i[1])
+
+                input__ = inputsNotChosen.pop(0)
+
+                iAncestors = input__[0].getAncestors()
+
+                # print("Descendants:")
+                DNC = []
+                for d in input__[0].getDescendants():
+                    for c in self.fullConnections:
+                        if c[1][1][0] == d and c[1][0][0] == input__[0]:
+                            # print("-----------------", c)
+                            DNC.append(d)
+
+                # print("DNC:", DNC)
+                # for g in self.gates:
+                    # print(g in DNC)
+
+                choice__ = [g for g in self.gates if g not in iAncestors and g != input__[0] and g not in DNC]
+
+                # print("Ancestors:", iAncestors)
+                # print("Choice:", choice__)
+
+                if len(choice__) == 0:
+                    # print("No Choice")
+                    continue
+
+                r = random.choice(choice__)
+                # print("Random:", r)
+
+                connection = findConnection(r, random.randint(0, r.outputCount - 1), input__[0], input__[1])
+                # print("Connection:", connection)
+                connection[2] = True
+
+                input__[0].ancestors.append(r)
+                r.descendants.append(input__[0])
+                iAncestors = input__[0].getAncestors()
+                # print("Ancestors:", iAncestors)
+
+
+            # print("Inputs not chosen:", inputsNotChosen)
+
+            for i in inputsNotChosen:
+                r = random.choice(self.inputPins)
+                connection = findConnection(r, 0, i[0], i[1])
+                connection[2] = True
+
+
+            for o in self.outputPins:
+                r = random.choice(self.gateOutputs)
+                connection = findConnection(r[0], r[1], o, 0)
+                connection[2] = True
         else:
             pass
 
@@ -178,65 +243,82 @@ class Package:
         
 
     def evaluate(self, execution):
-        pass
+        
+        fitness = compareTruthTables(compactTruthTable(execution), self.truthTable)
+        return fitness
 
     def reproduce(self):
         pass
 
 
 
-    def arange(self):
-
-        connections = self.initialize()
-
-        for c in connections:
-            print(c)
-
-        connectionCount = random.randint(1, len(connections))
-        chosenConnections = random.sample(connections, connectionCount)
-
-        for c in chosenConnections:
-            c[0][0].addConnection(c[0][1], c[1][0], c[1][1])
-
-        evaluation = execute(self.inputPins, self.outputPins)
-        pruned = self.pruneOutput(evaluation)
-        
-        if(pruned == "Invalid Table"):
-            print("Invalid Table")
-            return None
-        else:
-            displayTruthTable(pruned)
-            return pruned
         
 
 
 
-def solve(truthTable, gates, numberOfInstances = 1, fitnessTolerance = .9):
+def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
     
     numInputPins = len(list(truthTable.keys())[0])
     numOutputPins = len(list(truthTable.values())[0])
 
-    print("Number of Input Pins: " + str(numInputPins), "Number of Output Pins: " + str(numOutputPins))
+    # print("Number of Input Pins: " + str(numInputPins), "Number of Output Pins: " + str(numOutputPins))
 
     group = []
     for i in range(numberOfInstances):
         newGates = replicateGates(gates)
+        random.shuffle(newGates)
         group.append(Package(i, truthTable, newGates, numInputPins, numOutputPins))
 
+    generation = []
+
+    displayRate = numberOfInstances * displayEveryPercent
+
     for i in range(numberOfInstances):
-        group[i].initialize()
 
-        group[i].makeModify()
+        if displayEveryPercent != 0 and i % displayRate == 0:
+            print("Instance:", i, "of", numberOfInstances)
 
-        group[i].printConnections()
+        indv = group[i]
 
-        group[i].connect()
+        indv.initialize()
 
-        execution = group[i].execute(True)
+        indv.makeModify()
 
-        group[i].evaluate(execution)
+        # indv.printConnections()
 
-        group[i].reproduce()
+        indv.connect()
 
+        execution = indv.execute(False)
+
+        fitness = indv.evaluate(execution)
+        
+        # print("Fitness:", fitness)
+
+        # indv.reproduce()
+
+        generation.append([indv, fitness])
+
+
+    generation.sort(key = lambda x: x[1], reverse = True)
+    best = generation[0]
+
+    print("\n\nBest:", best[0].iD, ":", best[1])
+
+    displayTruthTable(compactTruthTable(execute(best[0].inputPins, best[0].outputPins)))
+
+    easyReadConnections(best[0])
+    
 
     return group
+
+
+
+def easyReadConnections(package):
+
+    connections = []
+
+    for c in package.fullConnections:
+        if(c[2]):
+            print(c[1][0][0], "at pin", c[1][0][1], "to", c[1][1][0], "at pin", c[1][1][1])
+
+    return connections

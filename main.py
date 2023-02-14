@@ -189,6 +189,56 @@ displayTruthTable(outputs, group = [["A8", "A4", "A2", "A1"], ["B8", "B4", "B2",
 
 
 
+'''
+
+Solver Examples
+
+'''
+
+
+# Nand
+
+'''
+truthTable = {
+                "00": "1",
+                "01": "1",
+                "10": "1",
+                "11": "0"
+            }
+
+
+AND_ = AND(1)
+NOT_ = NOT(1)
+
+
+gates = [AND_, NOT_]
+
+solve(truthTable, gates, 100)
+'''
+
+
+# XOR
+
+'''
+truthTable = {
+                "00": "0",
+                "01": "1",
+                "10": "1",
+                "11": "0"
+            }
+
+
+AND_1 = AND(1)
+AND_2 = AND(2)
+NOT_1 = NOT(1)
+OR_ = OR(1)
+
+
+
+gates = [AND_1, AND_2, OR_, NOT_1]
+
+solve(truthTable, gates, 10000, .05)
+'''
 
 
 
@@ -198,89 +248,3 @@ displayTruthTable(outputs, group = [["A8", "A4", "A2", "A1"], ["B8", "B4", "B2",
 
 
 
-
-
-
-
-
-
-# '''
-
-# Solver Testing
-
-# '''
-
-# truthTable = {
-#                 "00": "10",
-#                 "01": "10",
-#                 "10": "10",
-#                 "11": "00"
-#             }
-
-
-# AND_ = AND(1)
-# NOT_ = NOT(1)
-
-# gates = [AND_, NOT_]
-
-# solve(truthTable, gates)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-P1 = Pin(1, label = "A")
-P2 = Pin(2, label = "B")
-P3 = Pin(3, label = "C(in)")
-
-P4 = Pin(4, label = "S")
-P5 = Pin(5, label = "C(out)")
-
-A1 = AND(1)
-A2 = AND(2)
-
-X1 = XOR(1)
-X2 = XOR(2)
-
-O1 = OR(1)
-
-P1.addConnection(0, X1, 0)
-P2.addConnection(0, X1, 1)
-
-P1.addConnection(0, A2, 0)
-P2.addConnection(0, A2, 1)
-
-X1.addConnection(0, X2, 0)
-P3.addConnection(0, X2, 1)
-
-X1.addConnection(0, A1, 0)
-P3.addConnection(0, A1, 1)
-
-A1.addConnection(0, O1, 0)
-A2.addConnection(0, O1, 1)
-
-X2.addConnection(0, P4, 0)
-
-O1.addConnection(0, P5, 0)
-
-
-
-print(O1.getAncestors())
