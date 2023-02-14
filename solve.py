@@ -101,25 +101,9 @@ class Package:
 
         
 
-
     def makeModify(self):
 
         if self.firstPass:
-
-            '''
-            
-            Connections that need to be made:
-
-                1)  All input pins need to be connected to at least one gate input, 
-                    but 2 different inputs cannot be connected to the same gate input
-
-                2)  All output pins need to be connected to at least one gate output,
-                    but 2 different gate outputs cannot be connected to the same output pin
-
-                3)  No gate can have any input or output not connected to anything 
-                    (all inputs and outputs must be connected to something)
-            
-            '''
 
             def gatePinPair(gate, pin):
                 return "__".join([str(gate), str(pin)])
@@ -225,6 +209,13 @@ class Package:
                 connection = findConnection(r[0], r[1], o, 0)
                 connection[2] = True
         else:
+
+            '''
+            
+            Coming Soon
+
+            '''
+
             pass
 
 
@@ -253,9 +244,6 @@ class Package:
 
 
         
-
-
-
 def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
     
     numInputPins = len(list(truthTable.keys())[0])
@@ -305,10 +293,8 @@ def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
     print("\n\nBest:", best[0].iD, ":", best[1])
 
     displayTruthTable(compactTruthTable(execute(best[0].inputPins, best[0].outputPins)))
-
     easyReadConnections(best[0])
     
-
     return group
 
 
