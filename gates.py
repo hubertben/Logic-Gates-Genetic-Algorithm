@@ -59,7 +59,6 @@ class LogicGate:
         return list(set(self.descendants))
 
 
-
     def addConnection(self, myOutIndex, connectee, connecteeInIndex):
 
         myOutIndex = str(myOutIndex)
@@ -250,8 +249,12 @@ class Pin:
     def __repr__(self):
         return str(self.label)
 
-    def getAncestors(self):
-        return []
+    def getDecendants(self):   
+        connections = []
+        for i in self.outputConnections:
+            print(i)
+        return connections     
+        
 
     def addConnection(self, myOutIndex, connectee, connecteeInIndex):
 
@@ -268,124 +271,152 @@ class Pin:
         connectee.inputConnections[connecteeInIndex].append(self)
 
 
-def execute(inputPins, outputPins, verbose=False, maxItterations = 100): 
 
-    gates = []
+def execute(gates, inputPins, outputPins, verbose=False): 
+    outputTruthTable = {}
 
-    if(verbose): 
-        print("-------------------------------------------")
-        print("INPUTS:")
+    def inList(item, list):
+        for i in list:
+            if i == item:
+                return True
+        return False
+
+    def buildConnectionList(inputPins):
+        connections = []
         for i in inputPins:
-            if(verbose): print(" * " + str(i))
-        print("OUTPUTS:")
-        for o in outputPins:
-            print(" * " + str(o))
-        print("-------------------------------------------")
+            anc = i.getDecendants()
+            print(i, anc)
+            connections.extend(anc)
+        return connections
 
-    def findGates(passed):
-        for gate in passed:
-            if gate not in gates and type(gate) is not Pin:
-                gates.append(gate)
-                if(verbose): print("GATE:", gate.label + " " + str(gate.ID))
-                if(verbose): print(gate.outputConnections)
-                for i in range(len(gate.outputConnections)):
-                    outs = gate.outputConnections[str(i)]
-                    if(verbose):  
-                        for o in outs:
-                            if o is not None and type(gate) is not Pin:
-                                print("   - OUT:", o.label + " " + str(o.ID))
-                            else:
-                                print("   - OUT:", o)
+    print(buildConnectionList(inputPins))
+
+    return outputTruthTable
+
+
+
+
+
+
+
+# def execute(inputPins, outputPins, verbose=False, maxItterations = 100): 
+
+#     gates = []
+
+#     if(verbose): 
+#         print("-------------------------------------------")
+#         print("INPUTS:")
+#         for i in inputPins:
+#             if(verbose): print(" * " + str(i))
+#         print("OUTPUTS:")
+#         for o in outputPins:
+#             print(" * " + str(o))
+#         print("-------------------------------------------")
+
+#     def findGates(passed):
+#         for gate in passed:
+#             if gate not in gates and type(gate) is not Pin:
+#                 gates.append(gate)
+#                 if(verbose): print("GATE:", gate.label + " " + str(gate.ID))
+#                 if(verbose): print(gate.outputConnections)
+#                 for i in range(len(gate.outputConnections)):
+#                     outs = gate.outputConnections[str(i)]
+#                     if(verbose):  
+#                         for o in outs:
+#                             if o is not None and type(gate) is not Pin:
+#                                 print("   - OUT:", o.label + " " + str(o.ID))
+#                             else:
+#                                 print("   - OUT:", o)
     
-                findGates([o for o in outs if o is not None])
+#                 findGates([o for o in outs if o is not None])
 
-    passed = []
+#     passed = []
 
-    for i in inputPins:
-        for k, v in i.outputConnections.items():
-            for o in v:
-                if o not in passed:
-                    passed.append(o)
+#     for i in inputPins:
+#         for k, v in i.outputConnections.items():
+#             for o in v:
+#                 if o not in passed:
+#                     passed.append(o)
 
-    if(verbose): print("PASSED:", passed)
+#     if(verbose): print("PASSED:", passed)
 
 
-    findGates(passed)
-    if(verbose): print("GATES:", str(gates))
+#     findGates(passed)
+#     if(verbose): print("GATES:", str(gates))
 
-    def passThroughGates(maxIterations = 1000):
+#     def passThroughGates(maxIterations = 1000):
     
-        queue = []
-        i = 0
+#         queue = []
+#         i = 0
 
-        if(verbose):print("GATES:")
-        for g in gates:
-            if(verbose):print(g.displayGate())
-            queue.append(g)
+#         if(verbose):print("GATES:")
+#         for g in gates:
+#             if(verbose):print(g.displayGate())
+#             queue.append(g)
 
-        outputs = []
+#         outputs = []
 
-        iter_ = 0
-        while len(queue) > 0:
+#         iter_ = 0
+#         while len(queue) > 0:
 
-            if iter_ >= maxIterations:
-                if(verbose):print("MAX ITERATIONS REACHED")
-                return None
+#             if iter_ >= maxIterations:
+#                 if(verbose):print("MAX ITERATIONS REACHED")
+#                 return None
 
-            iter_ += 1
+#             iter_ += 1
 
-            item = queue[0]
+#             item = queue[0]
 
-            if "-1" not in item.inputs:
-                if(verbose):print("[EXECUTING] QUEUE:", item.label + " " + str(item.ID))
-                out = item.process()
-                if(verbose): print("OUTPUT:", out)
+#             if "-1" not in item.inputs:
+#                 if(verbose):print("[EXECUTING] QUEUE:", item.label + " " + str(item.ID))
+#                 out = item.process()
+#                 if(verbose): print("OUTPUT:", out)
                 
-                if out != {}:
-                    outputs.append(out)
+#                 if out != {}:
+#                     outputs.append(out)
 
-                queue.pop(i)
+#                 queue.pop(i)
 
-            else:
+#             else:
 
-                if(verbose):print("[SKIPPING] QUEUE:", item.label + " " + str(item.ID))
-                # move to end of queue
-                queue.append(queue.pop(i))
+#                 if(verbose):print("[SKIPPING] QUEUE:", item.label + " " + str(item.ID))
+#                 # move to end of queue
+#                 queue.append(queue.pop(i))
         
-        return outputs
+#         return outputs
 
 
-    def returnInput(i, l):
-        return str(decToBin(i, l))
+#     def returnInput(i, l):
+#         return str(decToBin(i, l))
 
-    outputs = {}
+#     outputs = {}
 
-    for i in range(2**len(inputPins)):
+#     for i in range(2**len(inputPins)):
 
-        if(verbose): print("I:", str(i) + " ------------------------------------------------------------")
+#         if(verbose): print("I:", str(i) + " ------------------------------------------------------------")
 
-        for j in range(len(inputPins)):
-            inputPins[j].value = returnInput(i, len(inputPins))[j]
-            if(verbose): print("INPUT:", str(inputPins[j]) + ":\t" + inputPins[j].value)
+#         for j in range(len(inputPins)):
+#             inputPins[j].value = returnInput(i, len(inputPins))[j]
+#             if(verbose): print("INPUT:", str(inputPins[j]) + ":\t" + inputPins[j].value)
 
-        for g in gates:
-            g.inputs = ["-1" for _ in range(g.inputCount)]
-            g.outputs = ["-1" for _ in range(g.outputCount)]
+#         for g in gates:
+#             g.inputs = ["-1" for _ in range(g.inputCount)]
+#             g.outputs = ["-1" for _ in range(g.outputCount)]
 
-        for j in inputPins:
-            for k, v in j.outputConnections.items():
-                for o in v:
-                    o.setInput(j, j.value)
+#         for j in inputPins:
+#             for k, v in j.outputConnections.items():
+#                 for o in v:
+#                     o.setInput(j, j.value)
        
-        p = passThroughGates(maxItterations)
-        inputs = []
+#         p = passThroughGates(maxItterations)
+#         inputs = []
 
-        for j in inputPins:
-            inputs.append({j.label : j.value})
+#         for j in inputPins:
+#             inputs.append({j.label : j.value})
 
-        outputs[str(inputs)] = p
+#         outputs[str(inputs)] = p
 
-    return outputs
+#     return outputs
                         
 
 

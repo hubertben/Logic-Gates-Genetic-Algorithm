@@ -14,7 +14,7 @@ logic gates and the network is tested.
 
 # NOR Gate from AND and NOT gates
 
-'''
+
 P1 = Pin(1, label = "Input Pin 1")
 P2 = Pin(2, label = "Input Pin 2")
 P3 = Pin(3, label = "Output Pin 1")
@@ -31,11 +31,16 @@ N1.addConnection(0, P3, 0)
 
 INPUTS = [P1, P2]
 OUTPUTS = [P3]
+GATES = [A1, N1]
 
-execution = execute(INPUTS, OUTPUTS, False)
+print(P1.outputConnections)
+print(P2.outputConnections)
 
-displayTruthTable(execution)
-'''
+execution = execute(GATES, INPUTS, OUTPUTS, False)
+print(execution)
+
+# displayTruthTable(execution)
+
 
 
 # Half Adder from XOR and AND gates
@@ -244,26 +249,26 @@ solve(truthTable, gates, 10000, .05)
 # Half Adder
 
 
-truthTable = {
-                "00": "0",
-                "01": "0",
-                "10": "0",
-                "11": "1",
-            }
+# truthTable = {
+#                 "00": "0",
+#                 "01": "0",
+#                 "10": "0",
+#                 "11": "1",
+#             }
 
 
-AND_1 = AND(1)
-AND_2 = AND(2)
+# AND_1 = AND(1)
+# AND_2 = AND(2)
 
-XOR_1 = XOR(1)
-XOR_2 = XOR(2)
+# XOR_1 = XOR(1)
+# XOR_2 = XOR(2)
 
-OR_1 = OR(1)
+# OR_1 = OR(1)
 
 
-gates = [AND_1, AND_2, XOR_1, XOR_2, OR_1]
+# gates = [AND_1, AND_2, XOR_1, XOR_2, OR_1]
 
-solve(truthTable, gates, 5000, .1)
+# solve(truthTable, gates, 5000, .1)
 
 
 
