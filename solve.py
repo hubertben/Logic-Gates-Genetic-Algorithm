@@ -246,7 +246,7 @@ class Package:
 
 
 
-    def connect(self):
+    def linker(self):
         for c in self.fullConnections:
             if(c[2]):
                 c[1][0][0].addConnection(c[1][0][1], c[1][1][0], c[1][1][1])

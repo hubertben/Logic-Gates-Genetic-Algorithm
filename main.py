@@ -12,63 +12,95 @@ logic gates and the network is tested.
 '''
 
 
-# NOR Gate from AND and NOT gates
+# P_in_1 = Pin(1, label = "PIN I1")
+# P_in_2 = Pin(2, label = "PIN I2")
+# P_Out = Pin(3, label = "PIN O1")
 
-'''
-P1 = Pin(1, label = "Input Pin 1")
-P2 = Pin(2, label = "Input Pin 2")
-P3 = Pin(3, label = "Output Pin 1")
+# A = AND(1)
+# N = NOT(1)
 
-A1 = AND(1)
-N1 = NOT(1)
+# C = Connections([
+#     Connection(P_in_1, 0, A, 0),
+#     Connection(P_in_2, 0, A, 1),
+#     Connection(A, 0, N, 0),
+#     Connection(N, 0, P_Out, 0)
+# ])
 
-P1.addConnection(0, A1, 0)
-P2.addConnection(0, A1, 1)
+# GATES = [A, N]
+# INPUTS = [P_in_1, P_in_2]
+# OUTPUTS = [P_Out]
+# CONNECTIONS = C
 
-A1.addConnection(0, N1, 0)
+# exc = execute(GATES, INPUTS, OUTPUTS, CONNECTIONS)
 
-N1.addConnection(0, P3, 0)
 
-INPUTS = [P1, P2]
-OUTPUTS = [P3]
 
-execution = execute(INPUTS, OUTPUTS, False)
+# Build XOR from AND, OR, and NOT gates
 
-displayTruthTable(execution)
-'''
+# P1 = Pin(1, label = "Input Pin 1")
+# P2 = Pin(2, label = "Input Pin 2")
+# P3 = Pin(3, label = "Output Pin 1")
+
+# NAND = NAND(1)
+# AND = AND(1)
+# OR = OR(1)
+
+# connections = [
+#     Connection(P1, 0, NAND, 0),
+#     Connection(P2, 0, NAND, 1),
+#     Connection(P1, 0, OR, 1),
+#     Connection(P2, 0, OR, 0),
+#     Connection(NAND, 0, AND, 0),
+#     Connection(OR, 0, AND, 1),
+#     Connection(AND, 0, P3, 0)
+# ]
+
+# GATES = [NAND, AND, OR]
+# INPUTS = [P1, P2]
+# OUTPUTS = [P3]
+# CONNECTIONS = Connections(connections)
+
+# exc = execute(GATES, INPUTS, OUTPUTS, CONNECTIONS)
+# print(exc)
+
+
+
+
+
 
 
 # Half Adder from XOR and AND gates
 
-'''
-P1 = Pin(1, label = "A")
-P2 = Pin(2, label = "B")
-P3 = Pin(3, label = "S")
-P4 = Pin(4, label = "C")
 
-A1 = AND(1)
-X1 = XOR(1)
+# P1 = Pin(1, label = "A")
+# P2 = Pin(2, label = "B")
+# P3 = Pin(3, label = "S")
+# P4 = Pin(4, label = "C")
 
-P1.addConnection(0, A1, 0)
-P2.addConnection(0, A1, 1)
+# A1 = AND(1)
+# X1 = XOR(1)
 
-P1.addConnection(0, X1, 0)
-P2.addConnection(0, X1, 1)
+# C = Connections([
+#     Connection(P1, 0, A1, 0),
+#     Connection(P2, 0, A1, 1),
+#     Connection(P1, 0, X1, 0),
+#     Connection(P2, 0, X1, 1),
+#     Connection(X1, 0, P3, 0),
+#     Connection(A1, 0, P4, 0)
+# ])
 
-X1.addConnection(0, P3, 0)
-A1.addConnection(0, P4, 0)
+# GATES = [A1, X1]
+# INPUTS = [P1, P2]
+# OUTPUTS = [P4, P3]
+# CONNECTIONS = C
 
-INPUTS = [P1, P2]
-OUTPUTS = [P3, P4]
-
-output = execute(INPUTS, OUTPUTS, False)
-displayTruthTable(output)
-
-print("\n\n")
-'''
+# output = execute(GATES, INPUTS, OUTPUTS, CONNECTIONS)
+# displayTruthTable(output)
 
 
-'''
+
+
+
 
 # Full Adder from AND, XOR, and OR gates
 
@@ -88,31 +120,30 @@ X2 = XOR(2)
 
 O1 = OR(1)
 
-P1.addConnection(0, X1, 0)
-P2.addConnection(0, X1, 1)
 
-P1.addConnection(0, A2, 0)
-P2.addConnection(0, A2, 1)
+C = Connections([
+    Connection(P1, 0, X1, 0),
+    Connection(P2, 0, X1, 1),
+    Connection(P1, 0, A2, 0),
+    Connection(P2, 0, A2, 1),
+    Connection(X1, 0, X2, 0),
+    Connection(P3, 0, X2, 1),
+    Connection(X1, 0, A1, 0),
+    Connection(P3, 0, A1, 1),
+    Connection(A1, 0, O1, 0),
+    Connection(A2, 0, O1, 1),
+    Connection(X2, 0, P4, 0),
+    Connection(O1, 0, P5, 0)
+])
 
-X1.addConnection(0, X2, 0)
-P3.addConnection(0, X2, 1)
-
-X1.addConnection(0, A1, 0)
-P3.addConnection(0, A1, 1)
-
-A1.addConnection(0, O1, 0)
-A2.addConnection(0, O1, 1)
-
-X2.addConnection(0, P4, 0)
-
-O1.addConnection(0, P5, 0)
-
+GATES = [A1, A2, X1, X2, O1]
 INPUTS = [P1, P2, P3]
-OUTPUTS = [P4, P5]
+OUTPUTS = [P5, P4]
+CONNECTIONS = C
 
-outputs = execute(INPUTS, OUTPUTS, False)
-displayTruthTable(outputs, group=[["A"], ["B"], ["C(in)"], ["C(out)", "S"]])
-'''
+outputs = execute(GATES, INPUTS, OUTPUTS, CONNECTIONS)
+displayTruthTable(outputs)
+
 
 
 '''
@@ -244,26 +275,26 @@ solve(truthTable, gates, 10000, .05)
 # Half Adder
 
 
-truthTable = {
-                "00": "0",
-                "01": "0",
-                "10": "0",
-                "11": "1",
-            }
+# truthTable = {
+#                 "00": "0",
+#                 "01": "0",
+#                 "10": "0",
+#                 "11": "1",
+#             }
 
 
-AND_1 = AND(1)
-AND_2 = AND(2)
+# AND_1 = AND(1)
+# AND_2 = AND(2)
 
-XOR_1 = XOR(1)
-XOR_2 = XOR(2)
+# XOR_1 = XOR(1)
+# XOR_2 = XOR(2)
 
-OR_1 = OR(1)
+# OR_1 = OR(1)
 
 
-gates = [AND_1, AND_2, XOR_1, XOR_2, OR_1]
+# gates = [AND_1, AND_2, XOR_1, XOR_2, OR_1]
 
-solve(truthTable, gates, 5000, .1)
+# solve(truthTable, gates, 5000, .1)
 
 
 
