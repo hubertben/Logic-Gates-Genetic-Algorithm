@@ -1,6 +1,7 @@
 import ast
 import copy
 import ast
+from connection import *
 
 def require(exp, label = ""):
     if not exp:
@@ -20,112 +21,62 @@ class LogicGate:
         self.outputCount = outputCount
         self.truthTable = {}
 
+        self.type_ = "Gate"
+
         self.inputs = ["-1" for _ in range(inputCount)]
         self.outputs = ["-1" for _ in range(outputCount)]
+
+        self.UTD = False
 
         for i in range(2 ** self.inputCount):
             self.truthTable[str(decToBin(i, self.inputCount))] = "0"
 
-        self.inputConnections = {}
-        self.outputConnections = {}
-
-        for i in range(inputCount):
-            self.inputConnections[str(i)] = []
-
-        for i in range(outputCount):
-            self.outputConnections[str(i)] = []
+        self.connections = {
+            "incomming": [[i, None] for i in range(inputCount)], 
+            "outgoing": [[i, None] for i in range(outputCount)]
+        }
 
         self.ancestors = []
         self.descendants = []
 
-    def getAncestors(self):        
-        for i in range(self.inputCount):
-            for j in self.inputConnections[str(i)]:
-                self.ancestors.append(j)
-                a = j.getAncestors()
-                if(a != []):
-                    self.ancestors.extend(a)    
-
-        return list(set(self.ancestors))
-
-    def getDescendants(self):
-        for i in range(self.outputCount):
-            for j in self.outputConnections[str(i)]:
-                self.descendants.append(j)
-                a = j.getDescendants()
-                if(a != []):
-                    self.descendants.extend(a)
-
-        return list(set(self.descendants))
-
-
-    def addConnection(self, myOutIndex, connectee, connecteeInIndex):
-
-        myOutIndex = str(myOutIndex)
-        connecteeInIndex = str(connecteeInIndex)
-        
-        if myOutIndex not in self.outputConnections:
-            self.outputConnections[myOutIndex] = []
-
-        if connecteeInIndex not in connectee.inputConnections:
-            connectee.inputConnections[connecteeInIndex] = []
-
-        self.outputConnections[myOutIndex].append(connectee)
-        connectee.inputConnections[connecteeInIndex].append(self)
-
-    def setInput(self, from_, value):
-        for i in range(self.inputCount):
-            if from_ in self.inputConnections[str(i)] and self.inputs[i] == "-1":
-                self.inputs[i] = str(value)
-
     def __str__(self):
-        s = self.label + "_" + str(self.ID)
-        return s
+        return self.label
 
     def __repr__(self):
-        return self.__str__()
+        return self.label
 
-    def displayGate(self):
-        s = "~~~~~~~~~~~~~~~~~~\n"
-        s += "Gate: " + self.label + " ID: " + str(self.ID) + "\n"
-        s += "Inputs: " + str(self.inputs) + "\n"
-        s += "Outputs: " + str(self.outputs) + "\n"
-        s += "~~~~~~~~~~~~~~~~~~\n"
-        return s
-
-    def evaluate(self, inputs):
-        s = ""
-        if(type(inputs) == list):
-            for i in inputs:
-                s += str(i)
-        else:
-            s = str(inputs)
-        return self.truthTable[s]
-
-    def evaluateInputs(self):
-        s = ""
-        for i in self.inputs:
-            s += str(i)
-
-        out = self.truthTable[s]
-        
-        for i in range(self.outputCount):
-            self.outputs[i] = out[i]
-    
     def process(self):
-        self.evaluateInputs()
-        outputs = {}
-        for i in range(self.outputCount):
-            for j in self.outputConnections[str(i)]:
-                
-                if type(j) == Pin:
-                    j.value = self.outputs[i]
-                    outputs[str(j.label)] = self.outputs[i]
+        if not self.synced():
+            return False
 
-                else:
-                    j.setInput(self, self.outputs[i])
+        self.outputs = [self.truthTable["".join(self.inputs)]]
+        return True
 
-        return outputs
+    def synced(self):
+        if any([x == "-1" for x in self.inputs]):
+            self.UTD = False
+            return False
+        
+        self.UTD = True
+        return True
+
+        
+    def getInput(self, indexPin):
+        return self.inputs[indexPin]
+
+    def getOutput(self, indexPin):
+        return self.outputs[indexPin]
+
+    def setOutput(self, indexPin, value):
+        self.outputs[indexPin] = value
+
+    def setInput(self, indexPin, value):
+        self.inputs[indexPin] = value
+
+    def reset(self):
+        self.inputs = ["-1" for _ in range(self.inputCount)]
+        self.outputs = ["-1" for _ in range(self.outputCount)]
+        self.UTD = False
 
     def copyGate(self):
         return copy.deepcopy(self)
@@ -239,8 +190,11 @@ class Pin:
 
         self.inputConnections = {}
         self.outputConnections = {}
+
+        self.type_ = "Pin"
+        self.UTD = False
     
-        self.value = 0
+        self.value = "-1"
         self.label = label
 
     def __str__(self):
@@ -249,48 +203,97 @@ class Pin:
     def __repr__(self):
         return str(self.label)
 
-    def getDecendants(self):   
-        connections = []
-        for i in self.outputConnections:
-            print(i)
-        return connections     
+    def getValue(self):
+        return self.value
+
+    def setValue(self, value):
+        self.value = value     
         
+    def process(self):
+        if not self.synced():
+            return False
 
-    def addConnection(self, myOutIndex, connectee, connecteeInIndex):
+        for i in self.outputConnections:
+            i.setInput(self.outputConnections[i], self.value)
 
-        myOutIndex = str(myOutIndex)
-        connecteeInIndex = str(connecteeInIndex)
+        return True
 
-        if myOutIndex not in self.outputConnections:
-            self.outputConnections[myOutIndex] = []
+    def synced(self):
+        if self.value == "-1":
+            self.UTD = False
+            return False
+        
+        self.UTD = True
+        return True
 
-        if connecteeInIndex not in connectee.inputConnections:
-            connectee.inputConnections[connecteeInIndex] = []
-
-        self.outputConnections[myOutIndex].append(connectee)
-        connectee.inputConnections[connecteeInIndex].append(self)
+    def reset(self):
+        self.value = "-1"
+        self.UTD = False
 
 
 
-def execute(gates, inputPins, outputPins, verbose=False): 
+def execute(gates, inputPins, outputPins, connections): 
     outputTruthTable = {}
 
-    def inList(item, list):
-        for i in list:
-            if i == item:
-                return True
-        return False
+    def returnInput(i, l):
+        return str(decToBin(i, l))
 
-    def buildConnectionList(inputPins):
-        connections = []
-        for i in inputPins:
-            anc = i.getDecendants()
-            print(i, anc)
-            connections.extend(anc)
-        return connections
+    for i in range(2**len(inputPins)):
 
-    print(buildConnectionList(inputPins))
+        in_ = str(returnInput(i, len(inputPins)))
+        outputTruthTable[in_] = "0" * len(outputPins)
 
+        for j in range(len(inputPins)):
+            inputPins[j].setValue(in_[j])
+
+        for g in gates:
+            g.reset()
+
+        for o in outputPins:
+            o.reset()
+
+        connections.reset()
+
+        Q = []
+        Q.extend(inputPins)
+        Q.extend(gates)
+        Q.extend(outputPins)
+        Q.append(len(Q))
+
+        while len(Q) > 0:
+            
+            current = Q.pop(0) 
+            if type(current) == int:
+                if (len(Q) != current):
+                    Q.append(len(Q))
+                    continue
+                else:
+                    break
+
+            SYNC = current.process() 
+
+            if SYNC:
+                fill = connections.myConnections(current, False)
+
+                if fill == []:
+                    if current in outputPins:
+                        index = outputPins.index(current)
+                        
+                        s_ = ""
+                        for i in range(len(outputTruthTable[in_])):
+                            if i != int(index):
+                                s_ += outputTruthTable[in_][i]
+                            else:
+                                s_ += str(current.getValue())
+                        outputTruthTable[in_] = s_
+                    continue
+
+                for f in fill:
+                    f.pushSignal()   
+
+            else:
+                Q.append(current)
+                
     return outputTruthTable
 
 
