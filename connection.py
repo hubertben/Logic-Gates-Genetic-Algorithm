@@ -44,6 +44,7 @@ class Connection:
         else:
             self.to_.setInput(self.tPin_, signal)
 
+
         self.pushed = True
 
     def __str__(self):

@@ -26,6 +26,8 @@ class LogicGate:
         self.inputs = ["-1" for _ in range(inputCount)]
         self.outputs = ["-1" for _ in range(outputCount)]
 
+        
+
         self.UTD = False
 
         for i in range(2 ** self.inputCount):
@@ -40,7 +42,7 @@ class LogicGate:
         self.descendants = []
 
     def __str__(self):
-        return self.label
+        return self.label + "(" + str(self.ID) + ")"
 
     def __repr__(self):
         return self.label
@@ -49,7 +51,7 @@ class LogicGate:
         if not self.synced():
             return False
 
-        self.outputs = [self.truthTable["".join(self.inputs)]]
+        self.outputs = list(self.truthTable["".join(self.inputs)])
         return True
 
     def synced(self):
@@ -94,7 +96,6 @@ class AND(LogicGate):
             "11": "1"
         }
         
-
 class OR(LogicGate):
     
     def __init__(self, ID):
@@ -165,7 +166,6 @@ class HALFADDER(LogicGate):
             "11": "01"
         }
 
-
 class FULLADDER(LogicGate):
 
     def __init__(self, ID):
@@ -181,7 +181,6 @@ class FULLADDER(LogicGate):
             "110": "01",
             "111": "11"
         }
-
 
 class Pin:
 
@@ -231,12 +230,13 @@ class Pin:
         self.UTD = False
 
 
-
 def execute(gates, inputPins, outputPins, connections): 
     outputTruthTable = {}
 
     def returnInput(i, l):
         return str(decToBin(i, l))
+
+    
 
     for i in range(2**len(inputPins)):
 
@@ -285,9 +285,10 @@ def execute(gates, inputPins, outputPins, connections):
                                 s_ += outputTruthTable[in_][i]
                             else:
                                 s_ += str(current.getValue())
+                        
                         outputTruthTable[in_] = s_
                     continue
-
+                
                 for f in fill:
                     f.pushSignal()   
 
@@ -296,131 +297,6 @@ def execute(gates, inputPins, outputPins, connections):
                 
     return outputTruthTable
 
-
-
-
-
-
-
-# def execute(inputPins, outputPins, verbose=False, maxItterations = 100): 
-
-#     gates = []
-
-#     if(verbose): 
-#         print("-------------------------------------------")
-#         print("INPUTS:")
-#         for i in inputPins:
-#             if(verbose): print(" * " + str(i))
-#         print("OUTPUTS:")
-#         for o in outputPins:
-#             print(" * " + str(o))
-#         print("-------------------------------------------")
-
-#     def findGates(passed):
-#         for gate in passed:
-#             if gate not in gates and type(gate) is not Pin:
-#                 gates.append(gate)
-#                 if(verbose): print("GATE:", gate.label + " " + str(gate.ID))
-#                 if(verbose): print(gate.outputConnections)
-#                 for i in range(len(gate.outputConnections)):
-#                     outs = gate.outputConnections[str(i)]
-#                     if(verbose):  
-#                         for o in outs:
-#                             if o is not None and type(gate) is not Pin:
-#                                 print("   - OUT:", o.label + " " + str(o.ID))
-#                             else:
-#                                 print("   - OUT:", o)
-    
-#                 findGates([o for o in outs if o is not None])
-
-#     passed = []
-
-#     for i in inputPins:
-#         for k, v in i.outputConnections.items():
-#             for o in v:
-#                 if o not in passed:
-#                     passed.append(o)
-
-#     if(verbose): print("PASSED:", passed)
-
-
-#     findGates(passed)
-#     if(verbose): print("GATES:", str(gates))
-
-#     def passThroughGates(maxIterations = 1000):
-    
-#         queue = []
-#         i = 0
-
-#         if(verbose):print("GATES:")
-#         for g in gates:
-#             if(verbose):print(g.displayGate())
-#             queue.append(g)
-
-#         outputs = []
-
-#         iter_ = 0
-#         while len(queue) > 0:
-
-#             if iter_ >= maxIterations:
-#                 if(verbose):print("MAX ITERATIONS REACHED")
-#                 return None
-
-#             iter_ += 1
-
-#             item = queue[0]
-
-#             if "-1" not in item.inputs:
-#                 if(verbose):print("[EXECUTING] QUEUE:", item.label + " " + str(item.ID))
-#                 out = item.process()
-#                 if(verbose): print("OUTPUT:", out)
-                
-#                 if out != {}:
-#                     outputs.append(out)
-
-#                 queue.pop(i)
-
-#             else:
-
-#                 if(verbose):print("[SKIPPING] QUEUE:", item.label + " " + str(item.ID))
-#                 # move to end of queue
-#                 queue.append(queue.pop(i))
-        
-#         return outputs
-
-
-#     def returnInput(i, l):
-#         return str(decToBin(i, l))
-
-#     outputs = {}
-
-#     for i in range(2**len(inputPins)):
-
-#         if(verbose): print("I:", str(i) + " ------------------------------------------------------------")
-
-#         for j in range(len(inputPins)):
-#             inputPins[j].value = returnInput(i, len(inputPins))[j]
-#             if(verbose): print("INPUT:", str(inputPins[j]) + ":\t" + inputPins[j].value)
-
-#         for g in gates:
-#             g.inputs = ["-1" for _ in range(g.inputCount)]
-#             g.outputs = ["-1" for _ in range(g.outputCount)]
-
-#         for j in inputPins:
-#             for k, v in j.outputConnections.items():
-#                 for o in v:
-#                     o.setInput(j, j.value)
-       
-#         p = passThroughGates(maxItterations)
-#         inputs = []
-
-#         for j in inputPins:
-#             inputs.append({j.label : j.value})
-
-#         outputs[str(inputs)] = p
-
-#     return outputs
-                        
 
 
 def compareTruthTables(tt1, tt2):
