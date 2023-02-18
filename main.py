@@ -220,27 +220,27 @@ Solver Examples
 # Nand
 
 
-truthTable = {
-                "00": "1",
-                "01": "1",
-                "10": "1",
-                "11": "0"
-            }
+# truthTable = {
+#                 "00": "1",
+#                 "01": "1",
+#                 "10": "1",
+#                 "11": "0"
+#             }
 
 
-AND_ = AND(1)
-NOT_ = NOT(1)
+# AND_ = AND(1)
+# NOT_ = NOT(1)
 
 
-GATES = [AND_, NOT_]
+# GATES = [AND_, NOT_]
 
-solve(truthTable, GATES)
+# solve(truthTable, GATES)
 
 
 
 # XOR
 
-'''
+
 truthTable = {
                 "00": "0",
                 "01": "1",
@@ -249,17 +249,16 @@ truthTable = {
             }
 
 
-AND_1 = AND(1)
-AND_2 = AND(2)
-NOT_1 = NOT(1)
+NAND_ = NAND(1)
+AND_ = AND(1)
 OR_ = OR(1)
 
 
 
-gates = [AND_1, AND_2, OR_, NOT_1]
+gates = [NAND_, AND_, OR_]
 
-solve(truthTable, gates, 10000, .05)
-'''
+solve(truthTable, gates, 1000)
+
 
 
 # Half Adder
@@ -284,7 +283,7 @@ solve(truthTable, gates, 10000, .05)
 
 # gates = [AND_1, AND_2, XOR_1, XOR_2, OR_1]
 
-# solve(truthTable, gates, 5000, .1)
+# solve(truthTable, gates)
 
 
 
