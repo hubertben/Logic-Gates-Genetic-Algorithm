@@ -62,6 +62,10 @@ class Package:
         self.fitness = 0
         self.groupFitness = 0
 
+        # get the first item of the dict
+        self.INPUT_NUM = len(list(truthTable.keys())[0])
+        self.OUTPUT_NUM = len(list(truthTable.values())[0])
+
        
         
     def gatePinPair(self, gate, pin):
@@ -76,25 +80,45 @@ class Package:
     
 
 
-    def initialize(self, CONNECTIONS, inputPins, outputPins):
+    def initialize(self):
 
-        CONNECTIONS = CONNECTIONS.fullCopy()
+        self.inputPins, self.outputPins = newPinSet(self.INPUT_NUM, self.OUTPUT_NUM)
+        self.CONNECTIONS.__clear__()
+        
+        for gate in self.GATES:
 
-        CONNECTIONS.reset()
+            gateInputCount = gate.inputCount
+            gateOutputCount = gate.outputCount
 
-        self.CONNECTIONS_BITMAP = [0 for _ in range(len(CONNECTIONS))]
-        SAMPLE, BITMAP = CONNECTIONS.__sample__(random.random(), returnBitMap = True)
+            for i in range(gateInputCount):
+                for pin in self.inputPins:
+                    self.CONNECTIONS.addConnection(pin, 0, gate, i)
+
+            for i in range(gateOutputCount):
+                for pin in self.outputPins:
+                    self.CONNECTIONS.addConnection(gate, i, pin, 0)
+
+            for g in self.GATES:
+                if g != gate:
+                    for i in range(gateOutputCount):
+                        for j in range(g.inputCount):
+                            self.CONNECTIONS.addConnection(gate, i, g, j)
+
+        self.CONNECTIONS_BITMAP = [0 for _ in range(len(self.CONNECTIONS))]
+        
+        
+        r = random.random()   
+        
+        SAMPLE, BITMAP = self.CONNECTIONS.__sample__(r, returnBitMap = True)
 
         self.CONNECTIONS = SAMPLE
         self.CONNECTIONS_BITMAP = BITMAP
-
-
-        self.exc = execute(self.GATES, inputPins, outputPins, self.CONNECTIONS)
+  
+        self.exc = execute(self.GATES, self.inputPins, self.outputPins, self.CONNECTIONS)
         self.fitness = compareTruthTables(self.exc, self.truthTable)
         return self.fitness
         
-            
-                
+
         
 
     def makeModify(self):
@@ -129,36 +153,15 @@ class Package:
 def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
 
     startTime = time.time()
+    displayRate = numberOfInstances * displayEveryPercent
 
-    numInputPins = len(list(truthTable.keys())[0])
-    numOutputPins = len(list(truthTable.values())[0])
-
-    inputPins, outputPins = newPinSet(numInputPins, numOutputPins)
-    CONNECTIONS = Connections()
-
-    for gate in gates:
-
-        gateInputCount = gate.inputCount
-        gateOutputCount = gate.outputCount
-
-        for i in range(gateInputCount):
-            for pin in inputPins:
-                CONNECTIONS.addConnection(pin, 0, gate, i)
-
-        for i in range(gateOutputCount):
-            for pin in outputPins:
-                CONNECTIONS.addConnection(gate, i, pin, 0)
-
-        for g in gates:
-            if g != gate:
-                for i in range(gateOutputCount):
-                    for j in range(g.inputCount):
-                        CONNECTIONS.addConnection(gate, i, g, j)
-
-    # print("Number of Input Pins: " + str(numInputPins), "Number of Output Pins: " + str(numOutputPins))
-
+    print("Solving...")
     group = []
     for i in range(numberOfInstances):
+
+        if displayEveryPercent != 0 and i % displayRate == 0:
+            print("Instance:", i, "of", numberOfInstances)
+
         newGates = replicateGates(gates)
         random.shuffle(newGates)
         group.append(Package(i, truthTable, newGates))
@@ -166,7 +169,9 @@ def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
     generation = []
     G = []
 
-    displayRate = numberOfInstances * displayEveryPercent
+    print("Group Initialized.")
+
+    
 
     for i in range(numberOfInstances):
 
@@ -174,41 +179,15 @@ def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
             print("Instance:", i, "of", numberOfInstances)
 
         indv = group[i]
-        e = indv.initialize(CONNECTIONS, inputPins, outputPins)
+        e = indv.initialize()
         generation.append(e)
         G.append(indv)
 
-        
 
-
-        # indv.makeModify()
-        # indv.linker()
-        # execution = indv.execute(False)
-        # fitness = indv.evaluate(execution)
-        # generation.append([indv, fitness])
-
-
-    # generation.sort(key = lambda x: x[1], reverse = True)
-    # best = generation[0]
-
-    # print("\n\nBest:", best[0].iD, ":", best[1])
-
-    # displayTruthTable(compactTruthTable(execute(best[0].inputPins, best[0].outputPins)))
-    # easyReadConnections(best[0])
-
-    # print()
-
-    # for g in best[0].gates:
-    #     print("Gate:", g)
-    #     print("Inputs:", g.inputConnections)
-    #     print("Outputs:", g.outputConnections)
-    #     print()
-
+    print("Group Evaluated.")
 
 
     T = 0
-    
-    
     for g in group:
         if len(g.CONNECTIONS) > T:
             T = len(g.CONNECTIONS)
@@ -218,7 +197,7 @@ def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
         if len(g.CONNECTIONS) < M:
             M = len(g.CONNECTIONS)
 
-    ratio = .75
+    ratio = .8
 
     for g in group:
         g.groupFitness = (((ratio) * g.fitness) + ((1 - ratio) * (1 - map(len(g.CONNECTIONS), M, T, 0, 1))))
@@ -232,6 +211,8 @@ def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
     sort_.sort(key = lambda x: x[1], reverse = True)
 
     best = sort_[0]
+
+    print()
 
     for s in sort_[:10]:
         print(s[0].iD, "\t:\t", s[1], "\t:\t", len(s[0].CONNECTIONS), "\t:\t", s[0].fitness)
@@ -248,6 +229,8 @@ def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
         
     
     return group
+
+
 
 
 

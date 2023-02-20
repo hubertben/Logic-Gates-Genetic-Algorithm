@@ -35,12 +35,13 @@ class Connections:
         for x in self.connections:
             print(x)
         return ""
+
     
-    def __copy__(self):
-        return Connections(copy.copy(self.connections))
-    
-    def __deepcopy__(self, memo):
-        return Connections(copy.deepcopy(self.connections, memo))
+    def _deepcopy_(self):
+        L = []
+        for x in self.connections:
+            L.append(x._deepcopy_())
+        return Connections(L)
     
     def __sample__(self, percent = 0.1, returnBitMap = False):
         S = random.sample(self.connections, int(len(self.connections) * percent))
@@ -59,9 +60,6 @@ class Connections:
     
     def __clear__(self):
         self.connections = []
-
-    def fullCopy(self):
-        return copy.deepcopy(self)
 
 class Connection:
 
@@ -99,4 +97,3 @@ class Connection:
 
     def __repr__(self):
         return str(self.from_) + str(" [" + str(self.fPin_) + "]") + " -> " + str(self.to_) + str(" [" + str(self.tPin_) + "]" + "\t> " + str(self.signal))
-

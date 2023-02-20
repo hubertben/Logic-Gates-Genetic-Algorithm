@@ -292,7 +292,7 @@ gates = [AND_1, AND_2, XOR_1, XOR_2, OR_1]
 # 50000 testing init optimization: 73.91 seconds
 
 
-solve(truthTable, gates, 50000, displayEveryPercent = .1)
+solve(truthTable, gates, 500000, displayEveryPercent = .1)
 
 
 
