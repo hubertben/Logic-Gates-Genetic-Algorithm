@@ -201,6 +201,9 @@ class Pin:
 
     def __repr__(self):
         return str(self.label)
+    
+    def copyPin(self):
+        return copy.deepcopy(self)
 
     def getValue(self):
         return self.value

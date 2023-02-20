@@ -241,49 +241,58 @@ Solver Examples
 # XOR
 
 
-truthTable = {
-                "00": "0",
-                "01": "1",
-                "10": "1",
-                "11": "0"
-            }
+# truthTable = {
+#                 "00": "0",
+#                 "01": "1",
+#                 "10": "1",
+#                 "11": "0"
+#             }
 
 
-NAND_ = NAND(1)
-AND_ = AND(1)
-OR_ = OR(1)
+# NAND_ = NAND(1)
+# AND_ = AND(1)
+# OR_ = OR(1)
 
 
 
-gates = [NAND_, AND_, OR_]
+# gates = [NAND_, AND_, OR_]
 
-solve(truthTable, gates, 5000)
+# solve(truthTable, gates, 5000)
 
 
 
 # Half Adder
 
 
-# truthTable = {
-#                 "00": "0",
-#                 "01": "0",
-#                 "10": "0",
-#                 "11": "1",
-#             }
+truthTable = {
+                "000": "00",
+                "001": "01",
+                "010": "01",
+                "011": "10",
+                "100": "01",
+                "101": "10",
+                "110": "10",
+                "111": "11",
+            }
 
 
-# AND_1 = AND(1)
-# AND_2 = AND(2)
+AND_1 = AND(1)
+AND_2 = AND(2)
 
-# XOR_1 = XOR(1)
-# XOR_2 = XOR(2)
+XOR_1 = XOR(1)
+XOR_2 = XOR(2)
 
-# OR_1 = OR(1)
+OR_1 = OR(1)
 
 
-# gates = [AND_1, AND_2, XOR_1, XOR_2, OR_1]
+gates = [AND_1, AND_2, XOR_1, XOR_2, OR_1]
 
-# solve(truthTable, gates)
+
+# 50000 before init optimization: 43.74 seconds
+# 50000 testing init optimization: 73.91 seconds
+
+
+solve(truthTable, gates, 50000, displayEveryPercent = .1)
 
 
 

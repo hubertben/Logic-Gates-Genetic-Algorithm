@@ -4,6 +4,8 @@ from gates import *
 from connection import *
 import random
 
+import time
+
 seed = random.randint(0, 1000000)
 
 
@@ -52,14 +54,13 @@ class Package:
         self.iD = iD
         self.truthTable = truthTable
         self.GATES = GATES
-        self.INPUT_NUM = len(list(truthTable.keys())[0])
-        self.OUTPUT_NUM = len(list(truthTable.values())[0])
 
         self.CONNECTIONS = Connections()
         self.CONNECTIONS_BITMAP = []
 
         self.inputPins, self.outputPins = None, None
         self.fitness = 0
+        self.groupFitness = 0
 
        
         
@@ -75,45 +76,20 @@ class Package:
     
 
 
-    def initialize(self):
+    def initialize(self, CONNECTIONS, inputPins, outputPins):
 
-        self.inputPins, self.outputPins = newPinSet(self.INPUT_NUM, self.OUTPUT_NUM)
-        self.CONNECTIONS.__clear__()
-        
+        CONNECTIONS = CONNECTIONS.fullCopy()
 
-        for gate in self.GATES:
+        CONNECTIONS.reset()
 
-            gateInputCount = gate.inputCount
-            gateOutputCount = gate.outputCount
-
-            for i in range(gateInputCount):
-                for pin in self.inputPins:
-                    self.CONNECTIONS.addConnection(pin, 0, gate, i)
-
-            for i in range(gateOutputCount):
-                for pin in self.outputPins:
-                    self.CONNECTIONS.addConnection(gate, i, pin, 0)
-
-            for g in self.GATES:
-                if g != gate:
-                    for i in range(gateOutputCount):
-                        for j in range(g.inputCount):
-                            self.CONNECTIONS.addConnection(gate, i, g, j)
-
-        self.CONNECTIONS_BITMAP = [0 for _ in range(len(self.CONNECTIONS))]
-        
-        
-        r = random.random()   
-        
-        SAMPLE, BITMAP = self.CONNECTIONS.__sample__(r, returnBitMap = True)
+        self.CONNECTIONS_BITMAP = [0 for _ in range(len(CONNECTIONS))]
+        SAMPLE, BITMAP = CONNECTIONS.__sample__(random.random(), returnBitMap = True)
 
         self.CONNECTIONS = SAMPLE
         self.CONNECTIONS_BITMAP = BITMAP
 
-        print(self.CONNECTIONS_BITMAP)
 
-  
-        self.exc = execute(self.GATES, self.inputPins, self.outputPins, self.CONNECTIONS)
+        self.exc = execute(self.GATES, inputPins, outputPins, self.CONNECTIONS)
         self.fitness = compareTruthTables(self.exc, self.truthTable)
         return self.fitness
         
@@ -151,9 +127,33 @@ class Package:
 
         
 def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
-    
+
+    startTime = time.time()
+
     numInputPins = len(list(truthTable.keys())[0])
     numOutputPins = len(list(truthTable.values())[0])
+
+    inputPins, outputPins = newPinSet(numInputPins, numOutputPins)
+    CONNECTIONS = Connections()
+
+    for gate in gates:
+
+        gateInputCount = gate.inputCount
+        gateOutputCount = gate.outputCount
+
+        for i in range(gateInputCount):
+            for pin in inputPins:
+                CONNECTIONS.addConnection(pin, 0, gate, i)
+
+        for i in range(gateOutputCount):
+            for pin in outputPins:
+                CONNECTIONS.addConnection(gate, i, pin, 0)
+
+        for g in gates:
+            if g != gate:
+                for i in range(gateOutputCount):
+                    for j in range(g.inputCount):
+                        CONNECTIONS.addConnection(gate, i, g, j)
 
     # print("Number of Input Pins: " + str(numInputPins), "Number of Output Pins: " + str(numOutputPins))
 
@@ -170,13 +170,11 @@ def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
 
     for i in range(numberOfInstances):
 
- 
-
         if displayEveryPercent != 0 and i % displayRate == 0:
             print("Instance:", i, "of", numberOfInstances)
 
         indv = group[i]
-        e = indv.initialize()
+        e = indv.initialize(CONNECTIONS, inputPins, outputPins)
         generation.append(e)
         G.append(indv)
 
@@ -220,28 +218,33 @@ def solve(truthTable, gates, numberOfInstances = 1, displayEveryPercent = 0):
         if len(g.CONNECTIONS) < M:
             M = len(g.CONNECTIONS)
 
-
+    ratio = .75
 
     for g in group:
-        g.fitness *= map(len(g.CONNECTIONS), M, T, 1, 0.5)
-        g.fitness = round(g.fitness, 3)
+        g.groupFitness = (((ratio) * g.fitness) + ((1 - ratio) * (1 - map(len(g.CONNECTIONS), M, T, 0, 1))))
+        g.groupFitness = round(g.groupFitness, 3)
 
+    sort_ = []
 
-    maxFitness = 0
-    maxPackage = None
     for g in group:
-        if g.fitness > maxFitness:
-            maxFitness = g.fitness
-            maxPackage = g
+        sort_.append([g, g.groupFitness])
 
-    print("Max Fitness:", maxFitness)
-    print("Max Package:", maxPackage.iD)
+    sort_.sort(key = lambda x: x[1], reverse = True)
+
+    best = sort_[0]
+
+    for s in sort_[:10]:
+        print(s[0].iD, "\t:\t", s[1], "\t:\t", len(s[0].CONNECTIONS), "\t:\t", s[0].fitness)
 
 
-    displayTruthTable(maxPackage.exc)
 
-    for C in maxPackage.CONNECTIONS:
-        print(C)
+    
+    endTime = time.time()
+    timeSecond = endTime - startTime
+
+    print("\n\nBest:", best[0].iD, ":", best[1])
+    
+
         
     
     return group

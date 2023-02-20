@@ -60,6 +60,9 @@ class Connections:
     def __clear__(self):
         self.connections = []
 
+    def fullCopy(self):
+        return copy.deepcopy(self)
+
 class Connection:
 
     def __init__(self, from_, fPin_, to_, tPin_):
