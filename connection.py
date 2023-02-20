@@ -46,11 +46,11 @@ class Connections:
         S = random.sample(self.connections, int(len(self.connections) * percent))
 
         if returnBitMap:
-            B = [0] * len(self.connections)
+            self.BITMAP = [0] * len(self.connections)
             for i in range(len(self.connections)):
                 if self.connections[i] in S:
-                    B[i] = 1
-            return Connections(S), B
+                    self.BITMAP[i] = 1
+            return Connections(S), self.BITMAP
 
         return Connections(S)
 

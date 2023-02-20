@@ -103,25 +103,16 @@ class Package:
         self.CONNECTIONS_BITMAP = [0 for _ in range(len(self.CONNECTIONS))]
         
         
-        #print(self.CONNECTIONS)
-
-
-        # choose a random sample of connections to modify
-        l = len(self.CONNECTIONS)
         r = random.random()   
         
-
-
         SAMPLE, BITMAP = self.CONNECTIONS.__sample__(r, returnBitMap = True)
 
         self.CONNECTIONS = SAMPLE
         self.CONNECTIONS_BITMAP = BITMAP
 
-        # for c in C:
-        #     print(c)
+        print(self.CONNECTIONS_BITMAP)
 
-        
-
+  
         self.exc = execute(self.GATES, self.inputPins, self.outputPins, self.CONNECTIONS)
         self.fitness = compareTruthTables(self.exc, self.truthTable)
         return self.fitness

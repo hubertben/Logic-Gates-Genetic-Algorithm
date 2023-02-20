@@ -257,7 +257,7 @@ OR_ = OR(1)
 
 gates = [NAND_, AND_, OR_]
 
-solve(truthTable, gates, 1000)
+solve(truthTable, gates, 5000)
 
 
 
