@@ -234,7 +234,7 @@ Solver Examples
 
 # GATES = [AND_, NOT_]
 
-# solve(truthTable, GATES)
+# solve(truthTable, GATES, 10)
 
 
 
@@ -290,9 +290,10 @@ gates = [AND_1, AND_2, XOR_1, XOR_2, OR_1]
 
 # 50000 before init optimization: 43.74 seconds
 # 50000 testing init optimization: 73.91 seconds
+# 50000 after init optimization: 26.49 seconds
 
 
-solve(truthTable, gates, 500000, displayEveryPercent = .1)
+solve(truthTable, gates, 10000, displayEveryPercent = .1)
 
 
 

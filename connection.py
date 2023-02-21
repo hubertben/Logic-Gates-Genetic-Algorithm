@@ -15,7 +15,7 @@ class Connections:
         if all:
             return [x for x in self.connections if x.from_ == object_ or x.to_ == object_]
         else:
-            return [x for x in self.connections if (x.from_ == object_ or x.to_ == object_) and not x.pushed]
+            return [x for x in self.connections if (x.from_ == object_ or x.to_ == object_) and not x.active]
 
     def reset(self):
         for x in self.connections:
@@ -70,11 +70,10 @@ class Connection:
         self.tPin_ = tPin_
 
         self.signal = 0
-
-        self.pushed = False
+        self.active = False
 
     def reset(self):
-        self.pushed = False
+        self.active = False
         self.signal = 0
 
     def pushSignal(self):
@@ -89,8 +88,7 @@ class Connection:
         else:
             self.to_.setInput(self.tPin_, self.signal)
 
-
-        self.pushed = True
+        self.active = True
 
     def __str__(self):
         return str(self.from_) + str(" [" + str(self.fPin_) + "]") + "\t->\t" + str(self.to_) + str(" [" + str(self.tPin_) + "]" + "\t> " + str(self.signal))
