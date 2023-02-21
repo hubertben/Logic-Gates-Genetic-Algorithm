@@ -234,7 +234,7 @@ Solver Examples
 
 # GATES = [AND_, NOT_]
 
-# solve(truthTable, GATES, 10)
+# solve(truthTable, GATES, 100)
 
 
 
@@ -257,7 +257,7 @@ Solver Examples
 
 # gates = [NAND_, AND_, OR_]
 
-# solve(truthTable, gates, 5000)
+# solve(truthTable, gates, 2000)
 
 
 

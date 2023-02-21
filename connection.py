@@ -35,6 +35,10 @@ class Connections:
         for x in self.connections:
             print(x)
         return ""
+    
+    def swapItem(self, index):
+        i = self.connections[index]
+        i.active = not i.active
 
     
     def _deepcopy_(self):
@@ -44,13 +48,19 @@ class Connections:
         return Connections(L)
     
     def __sample__(self, percent = 0.1, returnBitMap = False):
-        S = random.sample(self.connections, int(len(self.connections) * percent))
+
+        if percent > 1:
+            S = random.sample(self.connections, int(percent))
+        else:
+            S = random.sample(self.connections, int(len(self.connections) * percent))
 
         if returnBitMap:
             self.BITMAP = [0] * len(self.connections)
+            
             for i in range(len(self.connections)):
                 if self.connections[i] in S:
                     self.BITMAP[i] = 1
+            
             return Connections(S), self.BITMAP
 
         return Connections(S)
@@ -60,6 +70,13 @@ class Connections:
     
     def __clear__(self):
         self.connections = []
+
+    def __BitMap__(self, bitmap):
+        L = []
+        for i in range(len(bitmap)):
+            if bitmap[i] == 1:
+                L.append(self.connections[i])
+        return Connections(L)
 
 class Connection:
 
